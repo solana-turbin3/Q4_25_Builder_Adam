@@ -1,0 +1,17 @@
+# Anchor build artifacts
+**/target/
+**/test-ledger/
+
+# Node modules
+**/node_modules/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
