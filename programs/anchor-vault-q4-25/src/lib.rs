@@ -3,7 +3,7 @@ use anchor_lang::{
     system_program::{transfer, Transfer},
 };
 
-declare_id!("2u5cG7PEVL5KdTRMWSjdwqtBVv1anE5Hvv4FGSPZVRUN");
+declare_id!("BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE");
 
 #[program]
 pub mod anchor_vault_q4_25 {
@@ -17,13 +17,13 @@ pub mod anchor_vault_q4_25 {
         ctx.accounts.deposit(amount)
     }
 
-    // pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
-    //     ctx.accounts.withdraw(amount)
-    // }
+    pub fn withdraw(ctx: Context<Withdraw>, amount: u64) -> Result<()> {
+        ctx.accounts.withdraw(amount)
+    }
 
-    // pub fn close(ctx: Context<Close>) -> Result<()> {
-    //     ctx.accounts.close()
-    // }
+    pub fn close(ctx: Context<Close>) -> Result<()> {
+        ctx.accounts.close()
+    }
 }
 
 #[derive(Accounts)]
@@ -105,30 +105,102 @@ impl<'info> Deposit<'info> {
     }
 }
 
-// #[derive(Accounts)]
-// pub struct Withdraw<'info> {
-// TODO: Implement Withdraw accounts
-// }
+#[derive(Accounts)]
+pub struct Withdraw<'info> {
+    #[account(mut)]
+    pub user: Signer<'info>,
+    #[account(
+        mut,
+        seeds = [b"vault", vault_state.key().as_ref()],
+        bump = vault_state.vault_bump,
+    )]
+    pub vault: SystemAccount<'info>,
+    #[account(
+        seeds = [b"state", user.key().as_ref()],
+        bump = vault_state.state_bump, 
+    )]
+    pub vault_state: Account<'info, VaultState>,
+    pub system_program: Program<'info, System>,
+}
 
-// impl<'info> Withdraw<'info> {
-//     pub fn withdraw(&mut self, _amount: u64) -> Result<()> {
-//         TODO: Implement withdraw
+impl<'info> Withdraw<'info> {
+    pub fn withdraw(&mut self, amount: u64) -> Result<()> {
+        // Create the signer seeds for the vault PDA
+        let vault_state_key = self.vault_state.key();
+        let signer_seeds: &[&[&[u8]]] = &[&[
+            b"vault",
+            vault_state_key.as_ref(),
+            &[self.vault_state.vault_bump],
+        ]];
 
-//         Ok(())
-//     }
-// }
+        let cpi_program = self.system_program.to_account_info();
+        let cpi_accounts = Transfer {
+            from: self.vault.to_account_info(),
+            to: self.user.to_account_info()
+        };
 
-// #[derive(Accounts)]
-// pub struct Close<'info> {
-//      TODO: Implement Close accounts
-// }
+        let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
-// impl<'info> Close<'info> {
-//     pub fn close(&mut self) -> Result<()> {
-//          TODO: Implement close
-//         Ok(())
-//     }
-// }
+        transfer(cpi_ctx, amount)?;
+
+        Ok(())
+    }
+}
+
+#[derive(Accounts)]
+pub struct Close<'info> {
+    #[account(mut)]
+    pub user: Signer<'info>,
+    #[account(
+        mut,
+        seeds = [b"vault", vault_state.key().as_ref()],
+        bump = vault_state.vault_bump,
+    )]
+    pub vault: SystemAccount<'info>,
+    #[account(
+        mut,
+        close = user,
+        seeds = [b"state", user.key().as_ref()],
+        bump = vault_state.state_bump,
+    )]
+    pub vault_state: Account<'info, VaultState>,
+    pub system_program: Program<'info, System>,
+}
+
+impl<'info> Close<'info> {
+    pub fn close(&mut self) -> Result<()> {
+        // Get the current balance of the vault
+        let vault_balance = self.vault.to_account_info().lamports();
+        
+        // Only transfer if there are lamports in the vault
+        if vault_balance > 0 {
+            // Create the signer seeds for the vault PDA
+            let vault_state_key = self.vault_state.key();
+            let signer_seeds: &[&[&[u8]]] = &[&[
+                b"vault",
+                vault_state_key.as_ref(),
+                &[self.vault_state.vault_bump],
+            ]];
+
+            // Create CPI context with signer
+            let cpi_program = self.system_program.to_account_info();
+            let cpi_accounts = Transfer {
+                from: self.vault.to_account_info(),
+                to: self.user.to_account_info(),
+            };
+
+            let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
+
+            // Transfer all remaining lamports from vault to user
+            transfer(cpi_ctx, vault_balance)?;
+        }
+
+        // The vault_state account will be automatically closed due to the 
+        // #[account(close = user)] attribute, and its rent will be returned to the user
+        
+        Ok(())
+    }
+}
 
 #[derive(InitSpace)]
 #[account]
