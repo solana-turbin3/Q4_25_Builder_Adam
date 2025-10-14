@@ -1,0 +1,49 @@
+Streaming transaction logs mentioning BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE. Confirmed commitment
+Transaction executed in slot 373370788:
+  Signature: 4K3PPk393H71josYbNorufrXmn1XRrDmxrZQUALarJWBedPHbf5VMc5n21wG3dhLTWTwSUsvGN9LXJfvE1YE6u2D
+  Status: Ok
+  Log Messages:
+    Program 11111111111111111111111111111111 invoke [1]
+    Program 11111111111111111111111111111111 success
+Transaction executed in slot 373370790:
+  Signature: 45N6Un6n2DQVDbJDaKSQBT1RHFqEBCa99g8yD8z755SJhX1gANQyMmzNg3xnrcUtGzhKPDvuyLmXa12QQPT8NCaH
+  Status: Ok
+  Log Messages:
+    Program BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE invoke [1]
+    Program log: Instruction: Initialize
+    Program 11111111111111111111111111111111 invoke [2]
+    Program 11111111111111111111111111111111 success
+    Program 11111111111111111111111111111111 invoke [2]
+    Program 11111111111111111111111111111111 success
+    Program BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE consumed 22909 of 200000 compute units
+    Program BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE success
+Transaction executed in slot 373370790:
+  Signature: 3UvsUtNnemkpDL89ruAmstUjUxUT8c1xJMPQQNYuPkg1xgW4JTbfjggLUyLy38PgyvY533TU3Sx2BsLwD9KP4TZE
+  Status: Ok
+  Log Messages:
+    Program BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE invoke [1]
+    Program log: Instruction: Deposit
+    Program 11111111111111111111111111111111 invoke [2]
+    Program 11111111111111111111111111111111 success
+    Program BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE consumed 6739 of 200000 compute units
+    Program BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE success
+Transaction executed in slot 373370790:
+  Signature: 3D2A9nBdEPY3qkUdmbtJVduaRzoAFFNcdLV42z6Dd5sV37WkaSJUuiVJaCfPg4peVCvS2AfLFap6ff4SDrq3sT1k
+  Status: Ok
+  Log Messages:
+    Program BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE invoke [1]
+    Program log: Instruction: Withdraw
+    Program 11111111111111111111111111111111 invoke [2]
+    Program 11111111111111111111111111111111 success
+    Program BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE consumed 6771 of 200000 compute units
+    Program BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE success
+Transaction executed in slot 373370790:
+  Signature: 326ugRmnbL8GDBkfUcpATMf5BszEjEFQAnw7YHYn9oLeePFkw8WgjKRwEqz8dT8SY9UFuRhTh3nawh8ZEZbWmW3K
+  Status: Ok
+  Log Messages:
+    Program BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE invoke [1]
+    Program log: Instruction: Close
+    Program 11111111111111111111111111111111 invoke [2]
+    Program 11111111111111111111111111111111 success
+    Program BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE consumed 7088 of 200000 compute units
+    Program BS9vG86FwCUZ9w4J71PPDJt7vS1C588Nm8SGkgVJRyVE success
