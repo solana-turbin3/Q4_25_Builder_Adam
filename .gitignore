@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 .anchor
 .surfpool
 .DS_Store
@@ -6,3 +7,34 @@ target
 node_modules
 test-ledger
 .yarn
+=======
+# Wallet files - NEVER commit private keys!
+*.json
+*wallet*.json
+dev-wallet.json
+phantom-wallet.json
+id.json
+keypair.json
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+target/
+
+# Build outputs
+dist/
+build/
+*.log
+>>>>>>> turbin3/main
