@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+.anchor
+.surfpool
+.DS_Store
+target
+**/*.rs.bk
+node_modules
+test-ledger
+.yarn
+=======
 # Wallet files - NEVER commit private keys!
 *.json
 *wallet*.json
@@ -27,3 +37,4 @@ target/
 dist/
 build/
 *.log
+>>>>>>> turbin3/main
