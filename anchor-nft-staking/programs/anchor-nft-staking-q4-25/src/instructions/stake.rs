@@ -57,7 +57,6 @@ impl<'info> Stake<'info> {
             StakeError::MaxStakeReached
         );
 
-        // Initialize the stake account
         self.stake_account.set_inner(StakeAccount {
             owner: self.user.key(),
             mint: self.asset.key(),
@@ -67,7 +66,6 @@ impl<'info> Stake<'info> {
 
         self.user_account.amount_staked = self.user_account.amount_staked.saturating_add(1);
 
-        // Use user (owner) as authority to add the plugin, then transfer authority to config
         AddPluginV1CpiBuilder::new(&self.core_program.to_account_info())
             .asset(&self.asset.to_account_info())
             .collection(Some(&self.collection.to_account_info()))

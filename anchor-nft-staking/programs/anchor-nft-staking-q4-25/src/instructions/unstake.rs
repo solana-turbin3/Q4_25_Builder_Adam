@@ -70,16 +70,13 @@ impl<'info> Unstake<'info> {
 
         self.user_account.points = self.user_account.points.saturating_add(points_earned);
         
-        // Decrement the amount staked
         self.user_account.amount_staked = self.user_account.amount_staked.saturating_sub(1);
 
-        // Use config as authority for plugin operations (config is the plugin authority)
         let config_signer_seeds: &[&[&[u8]]] = &[&[
             b"config",
             &[self.config.bump],
         ]];
 
-        // First, unfreeze by updating the plugin (config has authority over the plugin)
         UpdatePluginV1CpiBuilder::new(&self.core_program.to_account_info())
             .asset(&self.asset.to_account_info())
             .collection(Some(&self.collection.to_account_info()))
@@ -89,8 +86,6 @@ impl<'info> Unstake<'info> {
             .plugin(Plugin::FreezeDelegate(FreezeDelegate { frozen: false }))
             .invoke_signed(config_signer_seeds)?;
 
-        // Then, remove the plugin using the owner (user) as authority
-        // Once unfrozen, the owner can remove the plugin
         RemovePluginV1CpiBuilder::new(&self.core_program.to_account_info())
             .asset(&self.asset.to_account_info())
             .collection(Some(&self.collection.to_account_info()))
