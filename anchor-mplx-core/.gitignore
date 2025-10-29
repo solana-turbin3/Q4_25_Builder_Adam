@@ -1,17 +1,8 @@
-# Anchor build artifacts
-**/target/
-**/test-ledger/
-
-# Node modules
-**/node_modules/
-
-# IDE
-.vscode/
-.idea/
-
-# OS
+.anchor
 .DS_Store
-Thumbs.db
-
-# Logs
-*.log
+target
+**/*.rs.bk
+node_modules
+test-ledger
+.yarn
+.surfpool
