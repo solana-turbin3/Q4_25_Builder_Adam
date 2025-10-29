@@ -45,11 +45,9 @@ impl<'info> Claim<'info> {
         
         require!(points > 0, crate::errors::StakeError::InvalidAsset);
 
-        let config_key = self.config.key();
         let signer_seeds: &[&[&[u8]]] = &[&[
-            b"rewards",
-            config_key.as_ref(),
-            &[self.config.rewards_bump],
+            b"config",
+            &[self.config.bump],
         ]];
 
         mint_to(
@@ -58,7 +56,7 @@ impl<'info> Claim<'info> {
                 MintTo {
                     mint: self.reward_mint.to_account_info(),
                     to: self.rewards_ata.to_account_info(),
-                    authority: self.reward_mint.to_account_info(),
+                    authority: self.config.to_account_info(),
                 },
                 signer_seeds,
             ),

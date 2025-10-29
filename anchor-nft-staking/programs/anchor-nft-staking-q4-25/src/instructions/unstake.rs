@@ -14,13 +14,15 @@ use crate::{
 pub struct Unstake<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
+    #[account(mut)]
     /// CHECK: This account is the NFT asset being unstaked
     pub asset: AccountInfo<'info>,
-    /// CHECK: This account represents the collection that the NFT belongs to
     #[account(
+        mut,
         constraint = collection.owner == &CORE_PROGRAM_ID @ StakeError::InvalidCollection,
         constraint = !collection.data_is_empty() @ StakeError::CollectionNotInitialized,
     )]
+    /// CHECK: This account represents the collection that the NFT belongs to
     pub collection: AccountInfo<'info>,
     #[account(
         mut,
@@ -71,13 +73,13 @@ impl<'info> Unstake<'info> {
         // Decrement the amount staked
         self.user_account.amount_staked = self.user_account.amount_staked.saturating_sub(1);
 
-        // Use config as authority for plugin operations
-        let signer_seeds: &[&[&[u8]]] = &[&[
+        // Use config as authority for plugin operations (config is the plugin authority)
+        let config_signer_seeds: &[&[&[u8]]] = &[&[
             b"config",
             &[self.config.bump],
         ]];
 
-        // First, update the freeze delegate to unfreeze the NFT
+        // First, unfreeze by updating the plugin (config has authority over the plugin)
         UpdatePluginV1CpiBuilder::new(&self.core_program.to_account_info())
             .asset(&self.asset.to_account_info())
             .collection(Some(&self.collection.to_account_info()))
@@ -85,17 +87,18 @@ impl<'info> Unstake<'info> {
             .authority(Some(&self.config.to_account_info()))
             .system_program(&self.system_program.to_account_info())
             .plugin(Plugin::FreezeDelegate(FreezeDelegate { frozen: false }))
-            .invoke_signed(signer_seeds)?;
+            .invoke_signed(config_signer_seeds)?;
 
-        // Then, remove the freeze delegate plugin
+        // Then, remove the plugin using the owner (user) as authority
+        // Once unfrozen, the owner can remove the plugin
         RemovePluginV1CpiBuilder::new(&self.core_program.to_account_info())
             .asset(&self.asset.to_account_info())
             .collection(Some(&self.collection.to_account_info()))
             .payer(&self.user.to_account_info())
-            .authority(Some(&self.config.to_account_info()))
+            .authority(Some(&self.user.to_account_info()))
             .system_program(&self.system_program.to_account_info())
             .plugin_type(PluginType::FreezeDelegate)
-            .invoke_signed(signer_seeds)?;
+            .invoke()?;
 
         Ok(())
     }
