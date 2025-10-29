@@ -41,13 +41,10 @@ pub struct Claim<'info> {
 
 impl<'info> Claim<'info> {
     pub fn claim(&mut self) -> Result<()> {
-        // Get the user's points
         let points = self.user_account.points;
         
-        // Require that user has points to claim
         require!(points > 0, crate::errors::StakeError::InvalidAsset);
 
-        // Mint reward tokens equal to points (1 point = 1 token with 0 decimals)
         let config_key = self.config.key();
         let signer_seeds: &[&[&[u8]]] = &[&[
             b"rewards",
@@ -68,7 +65,6 @@ impl<'info> Claim<'info> {
             points as u64,
         )?;
 
-        // Reset user's points to 0
         self.user_account.points = 0;
 
         msg!("Claimed {} reward tokens", points);
