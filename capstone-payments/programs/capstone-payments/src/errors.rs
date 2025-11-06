@@ -19,4 +19,16 @@ pub enum PaymentError {
     
     #[msg("Unauthorized")]
     Unauthorized,
+    
+    #[msg("Platform is currently paused")]
+    PlatformPaused,
+    
+    #[msg("Payment amount below minimum")]
+    PaymentTooSmall,
+    
+    #[msg("Payment amount exceeds maximum")]
+    PaymentTooLarge,
+
+    #[msg("Calculation error")]
+    CalculationError,
 }
