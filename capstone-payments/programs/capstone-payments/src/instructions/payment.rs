@@ -47,7 +47,7 @@ pub struct Payment<'info> {
     #[account(
         mut,
         associated_token::mint = usdc_mint,
-        associated_token::authority = platform_config.treasury,
+        associated_token::authority = platform_config,
     )]
     pub platform_treasury_usdc: Account<'info, TokenAccount>,
     

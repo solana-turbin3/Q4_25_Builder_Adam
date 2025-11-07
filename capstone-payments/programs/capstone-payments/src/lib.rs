@@ -42,6 +42,22 @@ pub mod capstone_payments {
     ) -> Result<()> {
         payment::handler(ctx, amount)
     }
+
+    /// Claim accumulated platform fees
+    pub fn claim_platform_fees(
+        ctx: Context<ClaimPlatformFees>,
+        amount: u64,
+    ) -> Result<()> {
+        claim::handler(ctx, amount)
+    }
+
+    /// Close a merchant account
+    pub fn close_merchant(
+        ctx: Context<CloseMerchant>,
+        merchant_id: String,
+    ) -> Result<()> {
+        close::handler(ctx, merchant_id)
+    }
 }
 
 

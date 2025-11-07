@@ -87,7 +87,7 @@ describe("capstone-payments", () => {
       connection,
       authority.payer,
       usdcMint,
-      treasury.publicKey
+      platformConfigPDA // Changed: PDA is now the authority
     );
     treasuryUsdcAccount = treasuryAccount.address;
 
@@ -175,5 +175,64 @@ describe("capstone-payments", () => {
     const customerAccount = await program.account.customerAccount.fetch(customerAccountPDA);
     console.log("Customer total spent:", customerAccount.totalSpent.toString());
     console.log("Customer transaction count:", customerAccount.transactionCount.toString());
+  });
+
+  it("Closes the merchant account", async () => {
+    const tx = await program.methods
+      .closeMerchant(merchantId)
+      .accountsStrict({
+        authority: settlementWallet.publicKey,
+        merchantAccount: merchantAccountPDA,
+      })
+      .signers([settlementWallet])
+      .rpc();
+
+    console.log("Merchant account closed, tx:", tx);
+
+    // Verify account is closed
+    try {
+      await program.account.merchantAccount.fetch(merchantAccountPDA);
+      throw new Error("Account should be closed");
+    } catch (e) {
+      console.log("Merchant account successfully closed");
+    }
+  });
+
+  it("Claims platform fees", async () => {
+    // Get authority's USDC account
+    const authorityUsdcAccount = await getOrCreateAssociatedTokenAccount(
+      connection,
+      authority.payer,
+      usdcMint,
+      authority.publicKey
+    );
+
+    // Check platform treasury balance before claim
+    const treasuryBalanceBefore = (await connection.getTokenAccountBalance(treasuryUsdcAccount)).value.amount;
+    console.log("Platform treasury balance before:", treasuryBalanceBefore);
+
+    const claimAmount = 50_000; // Claim 0.05 USDC (the platform fee from the 10 USDC payment)
+
+    const tx = await program.methods
+      .claimPlatformFees(new anchor.BN(claimAmount))
+      .accountsStrict({
+        authority: authority.publicKey,
+        platformConfig: platformConfigPDA,
+        usdcMint: usdcMint,
+        platformTreasuryUsdc: treasuryUsdcAccount,
+        destinationUsdc: authorityUsdcAccount.address,
+        tokenProgram: TOKEN_PROGRAM_ID,
+        associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
+      })
+      .rpc();
+
+    console.log("Platform fees claimed, tx:", tx);
+
+    // Verify balances updated
+    const treasuryBalanceAfter = (await connection.getTokenAccountBalance(treasuryUsdcAccount)).value.amount;
+    const authorityBalance = (await connection.getTokenAccountBalance(authorityUsdcAccount.address)).value.amount;
+
+    console.log("Platform treasury balance after:", treasuryBalanceAfter);
+    console.log("Authority balance after claim:", authorityBalance);
   });
 });

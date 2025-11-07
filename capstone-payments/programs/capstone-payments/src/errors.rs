@@ -31,4 +31,7 @@ pub enum PaymentError {
 
     #[msg("Calculation error")]
     CalculationError,
+
+    #[msg("Insufficient funds")]
+    InsufficientFunds,
 }
