@@ -39,6 +39,13 @@ describe("capstone-payments", () => {
     );
     console.log(`Platform Config PDA: ${platformConfigPDA.toBase58()}`);
 
+    // Derive Platform Treasury PDA (regular token account owned by PDA)
+    [treasuryUsdcAccount] = PublicKey.findProgramAddressSync(
+      [Buffer.from("treasury"), Buffer.from("platform_config")],
+      program.programId
+    );
+    console.log(`Platform Treasury PDA: ${treasuryUsdcAccount.toBase58()}`);
+
     // Derive Merchant Account PDA with merchant_id
     [merchantAccountPDA] = PublicKey.findProgramAddressSync(
       [Buffer.from("merchant"), Buffer.from(merchantId)],
@@ -66,7 +73,7 @@ describe("capstone-payments", () => {
     );
     console.log(`USDC Mint: ${usdcMint.toBase58()}`);
 
-    // Create token accounts for customer, merchant, and treasury
+    // Create token accounts for customer and merchant
     const customerAccount = await getOrCreateAssociatedTokenAccount(
       connection,
       authority.payer,
@@ -83,13 +90,7 @@ describe("capstone-payments", () => {
     );
     merchantUsdcAccount = merchantAccount.address;
 
-    const treasuryAccount = await getOrCreateAssociatedTokenAccount(
-      connection,
-      authority.payer,
-      usdcMint,
-      platformConfigPDA // Changed: PDA is now the authority
-    );
-    treasuryUsdcAccount = treasuryAccount.address;
+    // NOTE: Treasury PDA token account will be created in initialize_platform test
 
     // Mint some USDC to customer for testing (100 USDC)
     await mintTo(
@@ -114,6 +115,9 @@ describe("capstone-payments", () => {
         authority: authority.publicKey,
         platformConfig: platformConfigPDA,
         treasury: treasury.publicKey,
+        usdcMint: usdcMint,
+        platformTreasuryUsdc: treasuryUsdcAccount,
+        tokenProgram: TOKEN_PROGRAM_ID,
         systemProgram: SystemProgram.programId,
       })
       .rpc();
@@ -123,6 +127,10 @@ describe("capstone-payments", () => {
     // Verify platform config
     const config = await program.account.platformConfig.fetch(platformConfigPDA);
     console.log("Platform Config:", config);
+
+    // Verify treasury token account was created
+    const treasuryBalance = (await connection.getTokenAccountBalance(treasuryUsdcAccount)).value.amount;
+    console.log("Platform treasury balance:", treasuryBalance);
   });
 
   it("Initializes a merchant account", async () => {

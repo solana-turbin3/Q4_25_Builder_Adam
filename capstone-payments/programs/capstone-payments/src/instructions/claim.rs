@@ -22,8 +22,8 @@ pub struct ClaimPlatformFees<'info> {
     pub usdc_mint: Account<'info, Mint>,
     #[account(
         mut,
-        associated_token::mint = usdc_mint,
-        associated_token::authority = platform_config,
+        seeds = [b"treasury", PlatformConfig::SEED_PREFIX],
+        bump = platform_config.treasury_bump,
     )]
     pub platform_treasury_usdc: Account<'info, TokenAccount>,
     #[account(
