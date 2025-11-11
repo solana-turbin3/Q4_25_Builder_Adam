@@ -4,7 +4,7 @@ use anchor_spl::{
     token::{self, Mint, Token, TokenAccount, Transfer},
 };
 
-use crate::state::{PlatformConfig, MerchantAccount, CustomerAccount};
+use crate::state::{PlatformConfig, MerchantAccount, CustomerAccount, PaymentProcessed};
 use crate::errors::PaymentError;
 
 #[derive(Accounts)]
@@ -31,6 +31,9 @@ pub struct Payment<'info> {
         bump = merchant_account.bump,
     )]
     pub merchant_account: Account<'info, MerchantAccount>,
+    #[account(
+        constraint = usdc_mint.key() == platform_config.usdc_mint @ PaymentError::InvalidTokenMint
+    )]
     pub usdc_mint: Account<'info, Mint>,
     #[account(
         mut,
@@ -59,7 +62,7 @@ pub struct Payment<'info> {
 impl<'info> Payment<'info> {
     pub fn process_payment(&mut self, amount: u64, bump: u8) -> Result<()> {
         let clock = Clock::get()?.unix_timestamp as u64;
-        
+
         // Validations
         require!(self.merchant_account.is_active, PaymentError::MerchantInactive);
         require!(
@@ -74,26 +77,27 @@ impl<'info> Payment<'info> {
             !self.platform_config.is_paused,
             PaymentError::PlatformPaused
         );
-        
-        // Calculate fees
+        require!(
+            self.customer_usdc.amount >= amount,
+            PaymentError::InsufficientBalance
+        );
+
+        // Calculate fees - Use merchant-specific fee if set, otherwise use platform default
+        // This allows merchants to have custom fee rates (e.g., premium merchants pay less)
+        let fee_bps = if self.merchant_account.fee_percentage > 0 {
+            self.merchant_account.fee_percentage
+        } else {
+            self.platform_config.platform_fee_bps
+        };
+
         let platform_fee = amount
-            .checked_mul(self.platform_config.platform_fee_bps as u64)
+            .checked_mul(fee_bps as u64)
             .ok_or(PaymentError::CalculationError)?
             .checked_div(10_000)
             .ok_or(PaymentError::CalculationError)?;
-            
-        let merchant_fee = amount
-            .checked_mul(self.merchant_account.fee_percentage as u64)
-            .ok_or(PaymentError::CalculationError)?
-            .checked_div(10_000)
-            .ok_or(PaymentError::CalculationError)?;
-        
-        let total_fees = platform_fee
-            .checked_add(merchant_fee)
-            .ok_or(PaymentError::CalculationError)?;
-            
+
         let merchant_amount = amount
-            .checked_sub(total_fees)
+            .checked_sub(platform_fee)
             .ok_or(PaymentError::CalculationError)?;
         
         // Transfer platform fee to treasury
@@ -128,6 +132,11 @@ impl<'info> Payment<'info> {
             .checked_add(1)
             .ok_or(PaymentError::CalculationError)?;
         
+        // Initialize customer account if first time
+        if self.customer_account.customer == Pubkey::default() {
+            self.customer_account.customer = self.payer.key();
+        }
+
         // Update customer account
         self.customer_account.total_spent = self.customer_account.total_spent
             .checked_add(amount)
@@ -137,10 +146,19 @@ impl<'info> Payment<'info> {
             .ok_or(PaymentError::CalculationError)?;
         self.customer_account.last_payment = clock;
         self.customer_account.bump = bump;
-        
+
+        // Emit event
+        emit!(PaymentProcessed {
+            merchant_id: self.merchant_account.merchant_id.clone(),
+            customer: self.payer.key(),
+            amount,
+            platform_fee,
+            timestamp: clock as i64,
+        });
+
         msg!("Payment processed: {} USDC to merchant {}", amount, self.merchant_account.merchant_id);
-        msg!("Platform fee: {}, Merchant fee: {}, Net to merchant: {}", platform_fee, merchant_fee, merchant_amount);
-        
+        msg!("Platform fee: {}, Net to merchant: {}", platform_fee, merchant_amount);
+
         Ok(())
     }
 }

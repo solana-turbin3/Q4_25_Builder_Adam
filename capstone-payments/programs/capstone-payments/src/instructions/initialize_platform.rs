@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{Mint, Token, TokenAccount};
 
 use crate::state::PlatformConfig;
+use crate::errors::PaymentError;
 
 #[derive(Accounts)]
 pub struct InitializePlatform<'info> {
@@ -40,16 +41,27 @@ impl<'info> InitializePlatform<'info> {
         platform_bump: u8,
         treasury_bump: u8,
     ) -> Result<()> {
+        // Validation
+        require!(platform_fee_bps <= 1000, PaymentError::FeeTooHigh); // Max 10%
+        require!(min_payment_amount > 0, PaymentError::InvalidAmount);
+        require!(
+            max_payment_amount > min_payment_amount,
+            PaymentError::InvalidAmount
+        );
+        require!(self.usdc_mint.decimals == 6, PaymentError::InvalidTokenMint); // USDC has 6 decimals
+
         self.platform_config.authority = self.authority.key();
         self.platform_config.treasury = self.treasury.key();
+        self.platform_config.usdc_mint = self.usdc_mint.key();
         self.platform_config.platform_fee_bps = platform_fee_bps;
         self.platform_config.min_payment_amount = min_payment_amount;
         self.platform_config.max_payment_amount = max_payment_amount;
         self.platform_config.is_paused = false;
         self.platform_config.bump = platform_bump;
         self.platform_config.treasury_bump = treasury_bump;
-        
+
         msg!("Platform initialized with fee: {} bps", platform_fee_bps);
+        msg!("USDC mint: {}", self.usdc_mint.key());
         msg!("Treasury token account: {}", self.platform_treasury_usdc.key());
         Ok(())
     }

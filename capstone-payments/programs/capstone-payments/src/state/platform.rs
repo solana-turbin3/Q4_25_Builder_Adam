@@ -5,6 +5,7 @@ use anchor_lang::prelude::*;
 pub struct PlatformConfig {
     pub authority: Pubkey,           // Platform admin
     pub treasury: Pubkey,            // Where platform fees go (wallet for claiming)
+    pub usdc_mint: Pubkey,           // Authorized USDC mint address
     pub platform_fee_bps: u16,       // Platform fee in basis points (e.g., 50 = 0.5%)
     pub min_payment_amount: u64,     // Minimum payment in lamports
     pub max_payment_amount: u64,     // Maximum payment in lamports

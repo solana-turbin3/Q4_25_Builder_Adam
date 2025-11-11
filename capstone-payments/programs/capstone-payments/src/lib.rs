@@ -8,6 +8,11 @@ use instructions::*;
 
 declare_id!("4sRedkC6mpfbE4QHvnsFz8wAkbh5mrqQo1uk4mkbmR8D");
 
+// USDC Mint addresses for different networks
+// For testing, we'll store the USDC mint in PlatformConfig instead of hardcoding
+// Devnet USDC: Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr
+// Mainnet USDC: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+
 #[program]
 pub mod capstone_payments {
     use super::*;
