@@ -4,8 +4,17 @@ use anchor_spl::{
     token::{self, Mint, Token, TokenAccount, Transfer},
 };
 
-use crate::state::{PlatformConfig, MerchantAccount, CustomerAccount, PaymentProcessed};
+use crate::state::{PlatformConfig, MerchantAccount, CustomerAccount};
 use crate::errors::PaymentError;
+
+#[event]
+pub struct PaymentProcessed {
+    pub merchant_id: String,
+    pub customer: Pubkey,
+    pub amount: u64,
+    pub platform_fee: u64,
+    pub timestamp: i64,
+}
 
 #[derive(Accounts)]
 pub struct Payment<'info> {

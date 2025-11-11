@@ -13,12 +13,3 @@ pub struct MerchantAccount {
     pub is_active: bool,
     pub bump: u8,
 }
-
-#[event]
-pub struct PaymentProcessed {
-    pub merchant_id: String,
-    pub customer: Pubkey,
-    pub amount: u64,
-    pub fee: u64,
-    pub timestamp: i64,
-}
