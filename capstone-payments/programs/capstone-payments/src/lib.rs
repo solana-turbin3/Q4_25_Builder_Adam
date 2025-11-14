@@ -6,7 +6,7 @@ pub mod instructions;
 
 use instructions::*;
 
-declare_id!("4sRedkC6mpfbE4QHvnsFz8wAkbh5mrqQo1uk4mkbmR8D");
+declare_id!("B14zPMJLe5MBKgDuJd2pp6WxKYp8QM3MK7H5SLjEuBPP");
 
 // USDC Mint addresses for different networks
 // For testing, we'll store the USDC mint in PlatformConfig instead of hardcoding

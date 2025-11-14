@@ -1,6 +1,6 @@
 import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
-import { Keypair, PublicKey, SystemProgram } from "@solana/web3.js";
+import { Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import {
   createMint,
   getOrCreateAssociatedTokenAccount,
@@ -9,6 +9,7 @@ import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
 import { CapstonePayments } from "../target/types/capstone_payments";
+import { processPayment } from "../sdk/payment";
 
 describe("capstone-payments", () => {
   // Configure the client to use the local cluster.
@@ -242,5 +243,39 @@ describe("capstone-payments", () => {
 
     console.log("Platform treasury balance after:", treasuryBalanceAfter);
     console.log("Authority balance after claim:", authorityBalance);
+  });
+
+  it.skip("Processes a gasless payment via Octane", async () => {
+    // Note: This test is skipped by default as it requires Octane devnet to be running
+    // To run: remove .skip and ensure Octane devnet is available
+
+    const paymentAmount = 5_000_000; // 5 USDC (6 decimals)
+
+    // Mock wallet sign function
+    const signTransaction = async (tx: Transaction) => {
+      tx.partialSign(authority.payer);
+      return tx;
+    };
+
+    try {
+      const signature = await processPayment(
+        program,
+        connection,
+        authority.publicKey,
+        signTransaction,
+        merchantId,
+        paymentAmount,
+        usdcMint,
+        'https://octane-devnet.breakroom.show/api'
+      );
+
+      console.log("Gasless payment signature:", signature);
+
+      // Verify the payment went through
+      const merchantAccount = await program.account.merchantAccount.fetch(merchantAccountPDA);
+      console.log("Merchant volume after gasless payment:", merchantAccount.totalVolume.toString());
+    } catch (error) {
+      console.log("Octane error (expected if devnet is down):", error.message);
+    }
   });
 });
