@@ -7,3 +7,9 @@ test-ledger
 .yarn
 DEPLOYMENT.md
 demo_presentation.md
+
+# Private keys and sensitive files
+convert-key.js
+devnet-test-output.txt
+*.json.key
+*-wallet.json
