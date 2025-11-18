@@ -16,8 +16,9 @@ PayApp is a Solana-based payment infrastructure that enables businesses to accep
 
 ### Dual Fee Structure
 
-- Platform fee: Configurable basis points applied to all transactions
-- Merchant fee: Optional per-merchant fee percentage on top of platform fee
+- Platform fee: Configurable basis points (default 50 bps = 0.5%) collected by treasury on every payment
+- Merchant receives remainder (99.5%) automatically to their settlement wallet
+- Merchant fee percentage: Metadata field for pricing tiers and analytics (not transferred separately)
 - Transparent fee calculation visible in all payment events
 
 ### Merchant Onboarding
@@ -83,10 +84,11 @@ PayApp is a Solana-based payment infrastructure that enables businesses to accep
 
 **process_payment**
 
-- Transfers USDC from customer to merchant and platform
-- Calculates and distributes fees to treasury and merchant
+- Transfers USDC from customer with dual distribution:
+  - Platform fee (0.5%) → Platform treasury PDA
+  - Merchant amount (99.5%) → Merchant settlement wallet
 - Updates merchant and customer statistics
-- Emits PaymentProcessed event
+- Emits PaymentProcessed event with full fee breakdown
 
 **claim_platform_fees**
 
@@ -109,6 +111,8 @@ PayApp is a Solana-based payment infrastructure that enables businesses to accep
 - **Language**: Rust (program), TypeScript (SDK/tests)
 
 ## Program ID
+
+**Devnet**: `B14zPMJLe5MBKgDuJd2pp6WxKYp8QM3MK7H5SLjEuBPP`
 
 ```
 B14zPMJLe5MBKgDuJd2pp6WxKYp8QM3MK7H5SLjEuBPP

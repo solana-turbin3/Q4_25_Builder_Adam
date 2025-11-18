@@ -93,21 +93,29 @@ impl<'info> Payment<'info> {
 
         // Calculate fees - Use merchant-specific fee if set, otherwise use platform default
         // This allows merchants to have custom fee rates (e.g., premium merchants pay less)
-        let fee_bps = if self.merchant_account.fee_percentage > 0 {
-            self.merchant_account.fee_percentage
-        } else {
-            self.platform_config.platform_fee_bps
-        };
-
+        // Calculate platform fee (always charged, goes to platform treasury)
         let platform_fee = amount
-            .checked_mul(fee_bps as u64)
+            .checked_mul(self.platform_config.platform_fee_bps as u64)
             .ok_or(PaymentError::CalculationError)?
             .checked_div(10_000)
             .ok_or(PaymentError::CalculationError)?;
 
+        // Merchant receives payment minus platform fee
+        // (merchant can charge their own markup on top, but that's handled at pricing level)
         let merchant_amount = amount
             .checked_sub(platform_fee)
             .ok_or(PaymentError::CalculationError)?;
+
+        // Track merchant fee for analytics (not actually transferred separately)
+        let merchant_fee = if self.merchant_account.fee_percentage > 0 {
+            amount
+                .checked_mul(self.merchant_account.fee_percentage as u64)
+                .ok_or(PaymentError::CalculationError)?
+                .checked_div(10_000)
+                .ok_or(PaymentError::CalculationError)?
+        } else {
+            0
+        };
         
         // Transfer platform fee to treasury
         let transfer_platform_fee_accounts = Transfer {
@@ -166,7 +174,8 @@ impl<'info> Payment<'info> {
         });
 
         msg!("Payment processed: {} USDC to merchant {}", amount, self.merchant_account.merchant_id);
-        msg!("Platform fee: {}, Net to merchant: {}", platform_fee, merchant_amount);
+        msg!("Platform fee: {}, Merchant receives: {} (includes {}% merchant markup)", 
+            platform_fee, merchant_amount, self.merchant_account.fee_percentage as f64 / 100.0);
 
         Ok(())
     }
