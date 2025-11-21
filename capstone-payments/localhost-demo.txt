@@ -1,0 +1,76 @@
+
+Found a 'test' script in the Anchor.toml. Running it as a test suite!
+
+Running test suite: "/Users/adambryant/Q4_25_builder_adam/capstone-payments/Anchor.toml"
+
+(node:48221) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:48221) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:48221) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/adambryant/Q4_25_builder_adam/capstone-payments/tests/capstone-payments.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/adambryant/Q4_25_builder_adam/capstone-payments/package.json.
+bigint: Failed to load bindings, pure JS will be used (try npm run rebuild?)
+
+
+  capstone-payments
+Platform Config PDA: AofdeqyT5YCDd8UwgymGCpwofQLy1wqrNXcmBqmvSH84
+Platform Treasury PDA: 2A8Jkhdxf63Hi2TvCs899PYcgFdUgrSZriqKVbtc2csL
+Merchant Account PDA: 9GgVe3WD7QUmUSvFbzazuiQ7kSJ5w9p7d7dMUCxaaQ5L
+Customer Account PDA: 2qeXUgjx8HAykAm69oa3LEmhMcxqZKD7Y6rBvp6MeKQn
+USDC Mint: G46ehY2GtoigEtxfxip5AMPusGWfswQW4NZS6KRzf2Xd
+Minted 100 USDC to customer
+Platform initialized, tx: 5dSSSrHzTJGxSBqj7rrvZQVhWVjU6T591zHS5dsLgmjWmUjLnZQLoRthqGmsPGprhcy3ttNWjWbvs2waAYhSf5SF
+Platform Config: {
+  authority: PublicKey [PublicKey(7qTxpbC6bY5UmoHaroahznA2o4x1ewn6qHd5TBUwndL9)] {
+    _bn: <BN: 65907ca59dbc5d815554e222689f5f13afaeaa7a4ad64322cb4eae4deb67ab2e>
+  },
+  treasury: PublicKey [PublicKey(Hxej6ErW4abYkWuxdbXbse8Q2totV5gG7ktiLS1tkmky)] {
+    _bn: <BN: fbfc9786c8a2c1025cc958be49685e700f6ad0c0618d5d500b4382d3bc3a11ce>
+  },
+  usdcMint: PublicKey [PublicKey(G46ehY2GtoigEtxfxip5AMPusGWfswQW4NZS6KRzf2Xd)] {
+    _bn: <BN: dfaa6f4d7a954009da055383b9b9b477cd600e95e0b10f2ae6285b90f9fe5f94>
+  },
+  platformFeeBps: 50,
+  minPaymentAmount: <BN: 3e8>,
+  maxPaymentAmount: <BN: e8d4a51000>,
+  isPaused: false,
+  bump: 255,
+  treasuryBump: 254
+}
+Platform treasury balance: 0
+    ✔ Initializes the platform config (465ms)
+Merchant initialized, tx: 55CFeCZoA677XsWHqxeSNpLXDJCpVztbVtQWF2ARESBUApBanTcHHcdkxy5KmVG2CUEwtEMeiCcXRChKJMb91E9Z
+Merchant Account: {
+  merchantId: 'merchant1',
+  settlementWallet: PublicKey [PublicKey(4atj3Yos8UP79fDXJM4y2ivaAAs7EkSW1ABDnj9emz3x)] {
+    _bn: <BN: 3541b6877362ceca4a19f9e884734caf8c7a7f0a67f9889d3636ff27c9169fdf>
+  },
+  feePercentage: 250,
+  totalVolume: <BN: 0>,
+  transactionCount: <BN: 0>,
+  createdAt: <BN: 691c1ad9>,
+  isActive: true,
+  bump: 255
+}
+    ✔ Initializes a merchant account (462ms)
+Payment processed, tx: 5n2MhUWY3PzvUAuEgHNcr6VfBPduo3UtnjEVPusQnL6pJqov9Nz1xibBrUeRA8uRAWzEM4HsNjcFmrfv2zNZeYTW
+Merchant total volume: 10000000
+Merchant transaction count: 1
+Customer total spent: 10000000
+Customer transaction count: 1
+    ✔ Processes a payment (462ms)
+Merchant account closed, tx: 2vjgRzFdQUQiuoZTdF7wyTF8X5h7aDrUuUcUc5KXE6J55orDnh86TS4HsVtkqA5YhhMeSKefu8gXxQYanF5N578i
+Merchant account successfully closed
+    ✔ Closes the merchant account (461ms)
+Platform treasury balance before: 250000
+Platform fees claimed, tx: 2L6EgSYLPuvzqrjZ7dsnGnKyHQqAGb4JvP7LVhJhirrDo2zHrpV3Wmk8KJptpJadMYHtZFhshm1N1a8DyNcsa8Rm
+Platform treasury balance after: 200000
+Authority balance after claim: 90050000
+    ✔ Claims platform fees (471ms)
+    - Processes a gasless payment via Octane
+
+
+  5 passing (4s)
+  1 pending
+
