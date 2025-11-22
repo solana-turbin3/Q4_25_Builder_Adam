@@ -4,6 +4,7 @@
 - NFT-Staking
 - Metaplex
 - Dice-Game
+- Vault
 
 # Capstone Project
 -  Solana Pay based payments solution that can implement:
