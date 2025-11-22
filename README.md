@@ -4,6 +4,7 @@
 - NFT-Staking
 - Metaplex
 - Dice-Game
+- Escrow
 - Vault
 
 # Capstone Project
